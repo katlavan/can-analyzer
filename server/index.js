@@ -6,16 +6,21 @@ const readline = require('readline');
 const SerialPort = require('serialport');
 const Readline = require('@serialport/parser-readline');
 
-function initSerialPortStream(cb, serialId = "/dev/cu.usbserial-14610") {
+function initSerialPortStream(cb, serialId = "/dev/cu.usbserial-14410") {
   const port = new SerialPort(serialId, { baudRate: 9600 });
   const parser = port.pipe(new Readline({ delimiter: '\n' }));
   port.on("open", () => {
     console.log('serial port open');
+
   });
 
   parser.on('data', data =>{
-    console.log('got word from arduino:', data);
-    cb("can msg", `msg`);
+    const ignoreMesages = ["CAN Init ok", "Can't init CAN", "CAN Read - Testing receival of CAN Bus message"];
+    console.log('got word from arduino:', data, ignoreMesages.includes(data));
+    console.assert(ignoreMesages.includes(data))
+    if(!ignoreMesages.includes(data)) {
+      cb(data);
+    }
   });
 }
 
@@ -53,8 +58,8 @@ io.on('connection', socket => {
   socket.on("start read", (msg) => {
     console.log('Starting reading', msg);
     const emitMsgHandler = (data) =>  socket.emit("can msg", data);
-    // initSerialPortStream(emitMsgHandler);
-    readFile(emitMsgHandler);
+    initSerialPortStream(emitMsgHandler);
+    // readFile(emitMsgHandler);
   });
 
 

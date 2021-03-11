@@ -23,6 +23,7 @@ const Table = ({ msgObject }) => {
         <th>Id {Object.keys(msgObject).length}</th>
         <th>Original id</th>
         <th>Message</th>
+        <th>Message Decimal</th>
         <th>Messages Array</th>
       </tr>
       </thead>
